@@ -1,0 +1,218 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Public and private profile data for users moving to cities and owners posting listings.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "name": { "type": "string", "description": "Full name of the user" },
+        "email": { "type": "string", "format": "email", "description": "Email address" },
+        "role": { "type": "string", "enum": ["user", "owner", "admin"], "description": "User account role" },
+        "phone": { "type": "string", "description": "Contact number" },
+        "cityPreference": { "type": "string", "description": "Selected city of interest" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Account creation timestamp" }
+      },
+      "required": ["uid", "name", "email", "role", "createdAt"]
+    },
+    "Listing": {
+      "title": "Service Listing",
+      "description": "A accommodation, food, educational, job, or local service listing.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique listing ID" },
+        "ownerId": { "type": "string", "description": "UID of the owner who posted it" },
+        "ownerName": { "type": "string", "description": "Name of the owner" },
+        "title": { "type": "string", "description": "Title of the listing" },
+        "description": { "type": "string", "description": "Detailed description" },
+        "category": { "type": "string", "enum": ["rooms", "pg", "hostels", "flats", "mess", "tiffin", "jobs", "tuition", "colleges", "schools", "local_services"], "description": "Category of service" },
+        "city": { "type": "string", "description": "Indian city name" },
+        "locality": { "type": "string", "description": "Specific locality / area" },
+        "price": { "type": "number", "description": "Price, rent, or salary" },
+        "pricePeriod": { "type": "string", "description": "e.g., month, day, salary-pm, one-time" },
+        "features": { "type": "array", "description": "Amenities, job details, or service types" },
+        "images": { "type": "array", "description": "Listing photos" },
+        "contactNumber": { "type": "string", "description": "WhatsApp/Call contact number" },
+        "email": { "type": "string", "description": "Contact email" },
+        "address": { "type": "string", "description": "Full postal address" },
+        "rating": { "type": "number", "description": "Average review rating" },
+        "reviewsCount": { "type": "number", "description": "Total reviews received" },
+        "status": { "type": "string", "enum": ["active", "pending", "rejected"], "description": "Listing review status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Date created" }
+      },
+      "required": ["id", "ownerId", "title", "category", "city", "locality", "price", "pricePeriod", "contactNumber", "status", "createdAt"]
+    },
+    "Enquiry": {
+      "title": "Lead Enquiry",
+      "description": "An enquiry sent by a user to an owner about a listing.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique enquiry ID" },
+        "listingId": { "type": "string", "description": "Listing ID referenced" },
+        "listingTitle": { "type": "string", "description": "Cached listing title" },
+        "ownerId": { "type": "string", "description": "Listing owner ID" },
+        "userId": { "type": "string", "description": "Sender User UID" },
+        "userName": { "type": "string", "description": "Sender Name" },
+        "userPhone": { "type": "string", "description": "Sender Phone" },
+        "userEmail": { "type": "string", "description": "Sender Email" },
+        "message": { "type": "string", "description": "Sender custom message" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Sent timestamp" }
+      },
+      "required": ["id", "listingId", "ownerId", "userId", "userName", "userPhone", "createdAt"]
+    },
+    "Review": {
+      "title": "Listing Review",
+      "description": "A user-submitted review and rating for a specific listing.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique review ID" },
+        "listingId": { "type": "string", "description": "ID of the listing being reviewed" },
+        "userId": { "type": "string", "description": "Reviewer UID" },
+        "userName": { "type": "string", "description": "Reviewer name" },
+        "rating": { "type": "number", "description": "Rating score from 1 to 5" },
+        "comment": { "type": "string", "description": "Review text" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Review timestamp" }
+      },
+      "required": ["id", "listingId", "userId", "userName", "rating", "comment", "createdAt"]
+    },
+    "Favourite": {
+      "title": "User Favourite",
+      "description": "Indicates a listing bookmarked by a user.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "UID_ListingID composite key" },
+        "userId": { "type": "string", "description": "User UID" },
+        "listingId": { "type": "string", "description": "Listing ID" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Favored timestamp" }
+      },
+      "required": ["id", "userId", "listingId", "createdAt"]
+    },
+    "Booking": {
+      "title": "Visit Booking",
+      "description": "A scheduled relocation visit or booking for a space.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique booking ID" },
+        "listingId": { "type": "string", "description": "ID of the listing being visited" },
+        "listingTitle": { "type": "string", "description": "Title of the listing" },
+        "userId": { "type": "string", "description": "Seeker user UID" },
+        "userName": { "type": "string", "description": "Seeker user name" },
+        "userEmail": { "type": "string", "description": "Seeker user email" },
+        "ownerId": { "type": "string", "description": "Owner user UID" },
+        "visitDate": { "type": "string", "description": "Scheduled visit date" },
+        "visitTime": { "type": "string", "description": "Scheduled visit time" },
+        "status": { "type": "string", "enum": ["scheduled", "completed", "cancelled"], "description": "Visit booking status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Creation timestamp" }
+      },
+      "required": ["id", "listingId", "listingTitle", "userId", "userName", "ownerId", "visitDate", "status", "createdAt"]
+    },
+    "ListingReport": {
+      "title": "Listing Report",
+      "description": "A safety or spam report submitted by a user for audit.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Report ID" },
+        "listingId": { "type": "string", "description": "Listing ID" },
+        "listingTitle": { "type": "string", "description": "Listing Title" },
+        "ownerId": { "type": "string", "description": "Listing Owner ID" },
+        "reporterId": { "type": "string", "description": "Reporter User UID" },
+        "reporterName": { "type": "string", "description": "Reporter Name" },
+        "reason": { "type": "string", "description": "Reason categorisation" },
+        "comment": { "type": "string", "description": "Custom comments" },
+        "status": { "type": "string", "enum": ["pending", "resolved", "dismissed"], "description": "Moderation status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Report timestamp" }
+      },
+      "required": ["id", "listingId", "listingTitle", "ownerId", "reporterId", "reason", "status", "createdAt"]
+    },
+    "Invoice": {
+      "title": "Listing Subscription Invoice",
+      "description": "Tax invoice and transaction receipt for Razorpay premium plan upgrades.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Invoice ID" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "userName": { "type": "string", "description": "Owner Name" },
+        "userEmail": { "type": "string", "description": "Owner Email" },
+        "plan": { "type": "string", "enum": ["premium", "featured"], "description": "Subscribed Plan type" },
+        "amount": { "type": "number", "description": "Charged Amount" },
+        "razorpayPaymentId": { "type": "string", "description": "Payment reference from gateway" },
+        "status": { "type": "string", "enum": ["success", "pending", "failed"], "description": "Invoice payment state" },
+        "invoiceDate": { "type": "string", "format": "date-time", "description": "Payment date" },
+        "invoiceNumber": { "type": "string", "description": "Auto-increment style serial ID" }
+      },
+      "required": ["id", "userId", "userName", "userEmail", "plan", "amount", "razorpayPaymentId", "status", "invoiceDate", "invoiceNumber"]
+    },
+    "DirectMessage": {
+      "title": "Direct Message",
+      "description": "An individual chat bubble exchange between partners.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Message ID" },
+        "conversationId": { "type": "string", "description": "Conversation reference ID" },
+        "senderId": { "type": "string", "description": "Sender user UID" },
+        "senderName": { "type": "string", "description": "Sender name" },
+        "content": { "type": "string", "description": "Message payload" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Send time" },
+        "read": { "type": "boolean", "description": "Read receipt status" }
+      },
+      "required": ["id", "conversationId", "senderId", "senderName", "content", "timestamp", "read"]
+    },
+    "DirectConversation": {
+      "title": "Direct Conversation Thread",
+      "description": "The metadata for an in-app direct chat channel.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Conversation thread ID" },
+        "listingId": { "type": "string", "description": "Linked Listing ID (optional)" },
+        "listingTitle": { "type": "string", "description": "Cached title of linked space (optional)" },
+        "participants": { "type": "array", "description": "Array of participant UIDs" },
+        "participantNames": { "type": "object", "description": "UID mapping of names" },
+        "lastMessageText": { "type": "string", "description": "Snippet of last message" },
+        "lastMessageTime": { "type": "string", "format": "date-time", "description": "Snippet last timestamp" }
+      },
+      "required": ["id", "participants", "lastMessageText", "lastMessageTime"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "listings/{listingId}": {
+      "schema": "Listing",
+      "description": "Active, pending, and rejected listings across all cities and categories"
+    },
+    "enquiries/{enquiryId}": {
+      "schema": "Enquiry",
+      "description": "Direct inquiries between seekers and owners"
+    },
+    "reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "User-generated reviews for listings"
+    },
+    "favourites/{favouriteId}": {
+      "schema": "Favourite",
+      "description": "Bookmarks for user's favorite listings"
+    },
+    "bookings/{bookingId}": {
+      "schema": "Booking",
+      "description": "Scheduled visits and bookings for properties"
+    },
+    "reports/{reportId}": {
+      "schema": "ListingReport",
+      "description": "Inaccurate or fake listing reports submitted by users"
+    },
+    "invoices/{invoiceId}": {
+      "schema": "Invoice",
+      "description": "Secure invoices and transaction history records"
+    },
+    "conversations/{conversationId}": {
+      "schema": "DirectConversation",
+      "description": "Active in-app chat conversation threads"
+    },
+    "messages/{messageId}": {
+      "schema": "DirectMessage",
+      "description": "Individual in-app direct messages"
+    }
+  }
+}
