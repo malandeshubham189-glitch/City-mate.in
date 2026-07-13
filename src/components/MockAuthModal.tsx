@@ -498,9 +498,20 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
 
         {/* Alerts */}
         {errorMsg && (
-          <div className="mb-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 p-3.5 text-xs font-semibold text-red-600 dark:text-red-400 flex items-start gap-2 animate-in fade-in relative z-10">
-            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+          <div className="mb-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/50 p-3.5 text-xs font-semibold text-red-600 dark:text-red-400 flex flex-col gap-2 animate-in fade-in relative z-10">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>{errorMsg}</span>
+            </div>
+            {errorMsg.toLowerCase().includes("already in use") && (
+              <button
+                type="button"
+                onClick={() => setAuthState("sign-in")}
+                className="mt-1 self-start rounded-lg bg-red-100 dark:bg-red-900/40 px-2.5 py-1 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60 transition-all active:scale-95 cursor-pointer"
+              >
+                Switch to Sign In
+              </button>
+            )}
           </div>
         )}
 
