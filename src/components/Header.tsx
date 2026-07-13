@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { UserRole, UserProfile } from "../types";
-import { LogIn, LogOut, Shield, User, Building, MapPin, Bell, Sun, Moon } from "lucide-react";
+import { LogIn, LogOut, Shield, User, Building, MapPin, Bell, Sun, Moon, Paintbrush } from "lucide-react";
+import { PremiumTheme, getThemeStyles } from "../utils/themeManager";
 
 interface HeaderProps {
   currentUser: UserProfile | null;
@@ -11,6 +12,8 @@ interface HeaderProps {
   cities: string[];
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  premiumTheme: PremiumTheme;
+  onTogglePremiumTheme: () => void;
   unreadNotificationsCount?: number;
   notificationsList?: any[];
   onMarkNotificationsAsRead?: () => void;
@@ -25,12 +28,16 @@ export default function Header({
   cities,
   darkMode,
   onToggleDarkMode,
+  premiumTheme,
+  onTogglePremiumTheme,
   unreadNotificationsCount = 0,
   notificationsList = [],
   onMarkNotificationsAsRead,
 }: HeaderProps) {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [showNotificationsDropdown, setShowNotificationsDropdown] = useState(false);
+
+  const themeStyles = getThemeStyles(premiumTheme);
 
   return (
     <header className={`sticky top-0 z-40 w-full transition-all duration-300 ${
@@ -45,8 +52,8 @@ export default function Header({
           <div className="flex items-center gap-2">
             <div className={`flex h-10 w-10 items-center justify-center rounded-xl font-black text-white transition-all duration-300 ${
               darkMode 
-                ? "bg-gradient-to-tr from-brand-indigo via-brand-violet to-purple-500 shadow-[0_0_20px_rgba(124,58,237,0.4)]" 
-                : "bg-gradient-to-tr from-brand-blue to-brand-indigo shadow-[0_0_15px_rgba(79,70,229,0.2)]"
+                ? `bg-gradient-to-tr ${themeStyles.gradientLogo} ${themeStyles.shadowGlow}` 
+                : `bg-gradient-to-tr ${themeStyles.lightGradientLogo} shadow-[0_0_15px_rgba(79,70,229,0.2)]`
             }`}>
               CM
             </div>
@@ -54,7 +61,7 @@ export default function Header({
               <span className={`text-xl font-extrabold tracking-tight transition-colors duration-300 ${
                 darkMode ? "text-white" : "text-slate-900"
               }`}>
-                CityMate<span className={darkMode ? "text-purple-400" : "text-brand-indigo"}>.in</span>
+                CityMate<span className={darkMode ? themeStyles.accentText : themeStyles.lightAccentText}>.in</span>
               </span>
               <p className={`hidden text-[9px] font-bold tracking-widest uppercase sm:block transition-colors duration-300 ${
                 darkMode ? "text-slate-500" : "text-slate-400"
@@ -75,7 +82,7 @@ export default function Header({
               }`}
               id="header-city-selector"
             >
-              <MapPin className={`h-3.5 w-3.5 transition-colors ${darkMode ? "text-purple-400" : "text-brand-indigo"}`} />
+              <MapPin className={`h-3.5 w-3.5 transition-colors ${darkMode ? themeStyles.accentText : themeStyles.lightAccentText}`} />
               <span>{selectedCity}</span>
             </button>
 
@@ -101,8 +108,8 @@ export default function Header({
                       className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs font-medium transition-all ${
                         selectedCity === city
                           ? darkMode 
-                            ? "bg-purple-950/40 text-purple-400 font-bold" 
-                            : "bg-indigo-50/50 text-brand-indigo font-bold"
+                            ? `${themeStyles.badgeBg} ${themeStyles.accentText} font-bold` 
+                            : `bg-indigo-50/50 ${themeStyles.lightAccentText} font-bold`
                           : darkMode 
                             ? "text-slate-300 hover:bg-slate-800/60 hover:text-white" 
                             : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -110,7 +117,7 @@ export default function Header({
                     >
                       <span>{city}</span>
                       {selectedCity === city && (
-                        <span className={`h-1.5 w-1.5 rounded-full ${darkMode ? "bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.8)]" : "bg-brand-indigo"}`} />
+                        <span className={`h-1.5 w-1.5 rounded-full ${darkMode ? themeStyles.activeDot : themeStyles.lightActiveDot}`} />
                       )}
                     </button>
                   ))}
@@ -123,6 +130,25 @@ export default function Header({
         {/* Action Controls & Profile info */}
         <div className="flex items-center gap-3">
           
+          {/* Premium Theme Selector */}
+          <button
+            onClick={onTogglePremiumTheme}
+            className={`rounded-xl p-2.5 border transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer ${
+              darkMode
+                ? "border-slate-800 bg-slate-900/60 hover:bg-slate-800 text-slate-300"
+                : "border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-600"
+            }`}
+            title="Switch Premium Accent Theme"
+            id="premium-theme-btn"
+          >
+            <Paintbrush className={`h-4 w-4 ${
+              premiumTheme === "pistachio-orange" ? "text-lime-400" : "text-purple-400"
+            }`} />
+            <span className="hidden sm:inline text-xs font-black tracking-tight">
+              {premiumTheme === "pistachio-orange" ? "Pistachio + Orange" : "Classic Purple"}
+            </span>
+          </button>
+
           {/* Dark Mode Toggle */}
           <button
             onClick={onToggleDarkMode}
@@ -152,7 +178,7 @@ export default function Header({
               <Bell className="h-4.5 w-4.5" />
               {unreadNotificationsCount > 0 && (
                 <span className={`absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-black text-white ${
-                  darkMode ? "bg-purple-600 shadow-[0_0_8px_rgba(192,132,252,0.8)]" : "bg-red-500"
+                  darkMode ? `${themeStyles.accentBg} ${themeStyles.shadowGlow}` : "bg-red-500"
                 }`}>
                   {unreadNotificationsCount}
                 </span>
@@ -179,7 +205,7 @@ export default function Header({
                         onMarkNotificationsAsRead();
                         setShowNotificationsDropdown(false);
                       }}
-                      className="text-[9px] font-bold text-indigo-400 hover:underline bg-transparent border-none cursor-pointer"
+                      className={`text-[9px] font-bold ${darkMode ? themeStyles.accentText : "text-brand-indigo"} hover:underline bg-transparent border-none cursor-pointer`}
                     >
                       Clear All
                     </button>
@@ -249,8 +275,8 @@ export default function Header({
               <div className="flex items-center gap-2">
                 <div className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-black transition-all overflow-hidden ${
                   darkMode 
-                    ? "bg-purple-950/60 text-purple-300 border border-purple-900/40" 
-                    : "bg-indigo-50 text-brand-indigo border border-indigo-100"
+                    ? `${themeStyles.badgeBg} ${themeStyles.accentText} border ${themeStyles.badgeBorder}` 
+                    : `bg-indigo-50 ${themeStyles.lightAccentText} border border-indigo-100`
                 }`}>
                   {currentUser.photoURL ? (
                     <img 
@@ -282,7 +308,7 @@ export default function Header({
               onClick={onOpenAuth}
               className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-extrabold hover:scale-105 active:scale-95 transition-all shadow-lg cursor-pointer ${
                 darkMode
-                  ? "bg-gradient-to-r from-brand-indigo to-brand-violet text-white shadow-indigo-900/30 hover:shadow-indigo-900/50"
+                  ? `bg-gradient-to-r ${themeStyles.gradientBtn} text-white ${themeStyles.shadowGlow}`
                   : "bg-slate-900 text-white shadow-slate-900/10 hover:bg-slate-800"
               }`}
               id="header-login-btn"

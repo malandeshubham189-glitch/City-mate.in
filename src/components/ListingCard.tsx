@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Listing, ListingCategory } from "../types";
 import { Heart, MapPin, Phone, MessageSquare, Star, Share2, ShieldCheck, Sparkles } from "lucide-react";
 import { CATEGORY_LABELS } from "../data/seedData";
+import { PremiumTheme, getThemeStyles } from "../utils/themeManager";
 
 interface ListingCardProps {
   listing: Listing;
@@ -10,6 +11,7 @@ interface ListingCardProps {
   onSelect: (listing: Listing) => void;
   onContactClick: (listing: Listing, type: "call" | "whatsapp", event: React.MouseEvent) => void;
   darkMode: boolean;
+  premiumTheme?: PremiumTheme;
 }
 
 export default function ListingCard({
@@ -19,8 +21,11 @@ export default function ListingCard({
   onSelect,
   onContactClick,
   darkMode,
+  premiumTheme = "purple",
 }: ListingCardProps) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+  const themeStyles = getThemeStyles(premiumTheme);
 
   const categoryInfo = CATEGORY_LABELS[listing.category] || { label: listing.category, icon: "Home" };
 
@@ -139,7 +144,7 @@ export default function ListingCard({
         {/* Rating and Locality */}
         <div className="flex items-center justify-between text-[10px] font-extrabold uppercase tracking-widest mb-2">
           <div className="flex items-center gap-1">
-            <MapPin className={`h-3 w-3 ${darkMode ? "text-purple-400" : "text-brand-indigo"}`} />
+            <MapPin className={`h-3 w-3 ${darkMode ? themeStyles.accentText : themeStyles.lightAccentText}`} />
             <span className={`truncate max-w-[150px] ${darkMode ? "text-slate-400" : "text-slate-500"}`}>
               {listing.locality}
             </span>
@@ -147,10 +152,10 @@ export default function ListingCard({
 
           <div className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 font-black text-xs ${
             darkMode 
-              ? "bg-purple-950/40 text-purple-400 border border-purple-900/30" 
-              : "bg-indigo-50 text-brand-indigo"
+              ? `${themeStyles.badgeBg} ${themeStyles.accentText} border ${themeStyles.badgeBorder}` 
+              : `bg-indigo-50 ${themeStyles.lightAccentText}`
           }`}>
-            <Star className={`h-3 w-3 fill-current ${darkMode ? "text-purple-400" : "text-brand-indigo"}`} />
+            <Star className={`h-3 w-3 fill-current ${darkMode ? themeStyles.accentText : themeStyles.lightAccentText}`} />
             <span>{listing.rating.toFixed(1)}</span>
           </div>
         </div>
@@ -158,8 +163,8 @@ export default function ListingCard({
         {/* Title */}
         <h3 className={`text-sm font-extrabold tracking-tight line-clamp-1 transition-colors mb-2 group-hover:text-transparent group-hover:bg-clip-text ${
           darkMode 
-            ? "text-slate-100 group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-pink-400" 
-            : "text-slate-800 group-hover:bg-gradient-to-r group-hover:from-brand-blue group-hover:to-brand-indigo"
+            ? `text-slate-100 group-hover:bg-gradient-to-r group-hover:${themeStyles.accentText}` 
+            : `text-slate-800 group-hover:bg-gradient-to-r group-hover:${themeStyles.lightAccentText}`
         }`}>
           {listing.title}
         </h3>

@@ -6,6 +6,7 @@ import { collection, getDocs, query, where, addDoc, doc, updateDoc, deleteDoc, s
 import { listenAllListings } from "./services/firestoreService";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { motion, AnimatePresence } from "motion/react";
+import { PremiumTheme, getThemeStyles } from "./utils/themeManager";
 
 // Imported Components
 import { useNotificationHub } from "./hooks/useNotificationHub";
@@ -141,6 +142,14 @@ export default function App() {
     const saved = localStorage.getItem("citymate_theme");
     return saved !== null ? JSON.parse(saved) : true;
   });
+
+  // Premium Accent Theme State
+  const [premiumTheme, setPremiumTheme] = useState<PremiumTheme>(() => {
+    const saved = localStorage.getItem("citymate_premium_theme");
+    return (saved === "pistachio-orange" || saved === "purple") ? saved as PremiumTheme : "purple";
+  });
+
+  const themeStyles = getThemeStyles(premiumTheme);
 
   // Authentication & Profile state
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -304,6 +313,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("citymate_theme", JSON.stringify(darkMode));
   }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem("citymate_premium_theme", premiumTheme);
+  }, [premiumTheme]);
 
   // Production Launch & Resilient Path Diagnostics
   useEffect(() => {
@@ -686,6 +699,16 @@ export default function App() {
         cities={INDIAN_CITIES}
         darkMode={darkMode}
         onToggleDarkMode={() => setDarkMode(!darkMode)}
+        premiumTheme={premiumTheme}
+        onTogglePremiumTheme={() => {
+          const nextTheme = premiumTheme === "purple" ? "pistachio-orange" : "purple";
+          setPremiumTheme(nextTheme);
+          addNotification(
+            "Premium Theme Updated",
+            `Switched accent theme to ${nextTheme === "purple" ? "Classic Premium Purple" : "Premium Pistachio + Orange Gradient"}!`,
+            "success"
+          );
+        }}
         unreadNotificationsCount={unreadCount}
         notificationsList={notifications}
         onMarkNotificationsAsRead={markAllAsRead}
@@ -1201,6 +1224,7 @@ export default function App() {
                     onSelect={(l) => setSelectedListing(l)}
                     onContactClick={(l, type, e) => handleContactClick(l, type, e)}
                     darkMode={darkMode}
+                    premiumTheme={premiumTheme}
                   />
                   <div className="absolute top-4 right-14 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg px-2 py-1 text-[8px] font-black uppercase tracking-widest shadow-md flex items-center gap-0.5 pointer-events-none">
                     <Star className="h-2.5 w-2.5 fill-current text-white" />
@@ -1385,6 +1409,7 @@ export default function App() {
                     onSelect={(l) => setSelectedListing(l)}
                     onContactClick={(l, type, e) => handleContactClick(l, type, e)}
                     darkMode={darkMode}
+                    premiumTheme={premiumTheme}
                   />
 
                    {/* Admin inline moderation panel */}
