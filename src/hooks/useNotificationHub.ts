@@ -55,8 +55,7 @@ export function useNotificationHub(userId: string | undefined) {
     // Query notifications for the active user
     const q = query(
       colRef,
-      where("userId", "==", userId),
-      orderBy("createdAt", "desc")
+      where("userId", "==", userId)
     );
 
     let isFirstLoad = true;
@@ -81,6 +80,13 @@ export function useNotificationHub(userId: string | undefined) {
         if (!item.read) {
           unread++;
         }
+      });
+
+      // Sort client-side to avoid requiring composite indexes
+      list.sort((a, b) => {
+        const dateA = new Date(a.createdAt || 0).getTime();
+        const dateB = new Date(b.createdAt || 0).getTime();
+        return dateB - dateA;
       });
 
       // If we receive a NEW unread notification after the initial load, trigger an instant premium toast alert!
