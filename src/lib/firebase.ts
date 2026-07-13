@@ -1,0 +1,87 @@
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore, doc, getDocFromServer, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import firebaseConfig from "@/firebase-applet-config.json";
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
+export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== "(default)" ? firebaseConfig.firestoreDatabaseId : undefined);
+export const storage = getStorage(app);
+
+// Enable Firestore Multi-Tab Offline Persistence for superior platform resilience
+if (typeof window !== "undefined") {
+  enableMultiTabIndexedDbPersistence(db).catch((err) => {
+    if (err.code === "failed-precondition") {
+      console.warn("Firestore offline persistence warning: Multiple tabs open. Active in first tab.");
+    } else if (err.code === "unimplemented") {
+      console.warn("Firestore offline persistence is not supported in the current browser engine.");
+    } else {
+      console.warn("Firestore offline cache initialization bypassed:", err);
+    }
+  });
+}
+
+export enum OperationType {
+  CREATE = "create",
+  UPDATE = "update",
+  DELETE = "delete",
+  LIST = "list",
+  GET = "get",
+  WRITE = "write",
+}
+
+export interface FirestoreErrorInfo {
+  error: string;
+  operationType: OperationType;
+  path: string | null;
+  authInfo: {
+    userId?: string | null;
+    email?: string | null;
+    emailVerified?: boolean | null;
+    isAnonymous?: boolean | null;
+    tenantId?: string | null;
+    providerInfo?: {
+      providerId?: string | null;
+      email?: string | null;
+    }[];
+  };
+}
+
+export function handleFirestoreError(error: unknown, operationType: OperationType, path: string | null) {
+  const errInfo: FirestoreErrorInfo = {
+    error: error instanceof Error ? error.message : String(error),
+    authInfo: {
+      userId: auth.currentUser?.uid,
+      email: auth.currentUser?.email,
+      emailVerified: auth.currentUser?.emailVerified,
+      isAnonymous: auth.currentUser?.isAnonymous,
+      tenantId: auth.currentUser?.tenantId,
+      providerInfo: auth.currentUser?.providerData?.map((provider) => ({
+        providerId: provider.providerId,
+        email: provider.email,
+      })) || [],
+    },
+    operationType,
+    path,
+  };
+  console.error("Firestore Error Logged: ", JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
+// Validate Connection to Firestore on startup as per skill rules
+async function testConnection() {
+  if (typeof window === "undefined") return;
+  try {
+    await getDocFromServer(doc(db, "test", "connection")).catch(() => {
+      // Handled rejection to prevent unhandled promise rejection warnings in console
+      console.info("Firestore status: Server unreachable or offline cache active.");
+    });
+  } catch (error) {
+    // Quiet catch
+  }
+}
+
+testConnection();
+

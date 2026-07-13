@@ -1,0 +1,10 @@
+{
+  "name": "CityMate India",
+  "description": "A premium full-stack relocation hub for major Indian cities. Easily find rooms, PGs, hostels, flats, tiffin, mess, coaching classes, local services, and jobs in one place, backed by a smart AI chatbot assistant.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

@@ -1,0 +1,323 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- GLOBAL PRIMITIVES ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'shubhammalande004@gmail.com' ||
+        request.auth.token.email == 'malandeshubham189@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- VALIDATION HELPERS ---
+
+    function isValidUser(data) {
+      return data.uid is string &&
+             data.name is string && data.name.size() <= 100 &&
+             data.email is string && data.email.size() <= 100 &&
+             data.role in ['user', 'owner', 'admin'] &&
+             data.createdAt is string;
+    }
+
+    function isValidListing(data) {
+      return data.id is string &&
+             data.ownerId is string &&
+             data.title is string && data.title.size() <= 200 &&
+             data.category is string &&
+             data.city is string &&
+             data.locality is string &&
+             data.price is number &&
+             data.pricePeriod is string &&
+             data.contactNumber is string &&
+             data.status in ['active', 'pending', 'rejected'] &&
+             data.createdAt is string;
+    }
+
+    function isValidEnquiry(data) {
+      return data.id is string &&
+             data.listingId is string &&
+             data.ownerId is string &&
+             data.userId is string &&
+             data.userName is string &&
+             data.userPhone is string &&
+             data.createdAt is string;
+    }
+
+    function isValidReview(data) {
+      return data.id is string &&
+             data.listingId is string &&
+             data.userId is string &&
+             data.userName is string &&
+             data.rating is number && data.rating >= 1 && data.rating <= 5 &&
+             data.comment is string && data.comment.size() <= 1000 &&
+             data.createdAt is string;
+    }
+
+    function isValidFavourite(data) {
+      return data.id is string &&
+             data.userId is string &&
+             data.listingId is string &&
+             data.createdAt is string;
+    }
+
+    function isValidBooking(data) {
+      return data.id is string &&
+             data.listingId is string &&
+             data.listingTitle is string &&
+             data.userId is string &&
+             data.userName is string &&
+             data.ownerId is string &&
+             data.visitDate is string &&
+             data.status in ['scheduled', 'completed', 'cancelled'] &&
+             data.createdAt is string;
+    }
+
+    function isValidReport(data) {
+      return data.id is string &&
+             data.listingId is string &&
+             data.listingTitle is string &&
+             data.ownerId is string &&
+             data.reporterId is string &&
+             data.reason is string &&
+             data.status in ['pending', 'resolved', 'dismissed'] &&
+             data.createdAt is string;
+    }
+
+    // Invoices may be created by any user completing a purchase, or systems
+    function isValidInvoice(data) {
+      return data.id is string &&
+             data.userId is string &&
+             data.userName is string &&
+             data.userEmail is string &&
+             data.plan in ['premium', 'featured'] &&
+             data.amount is number &&
+             data.razorpayPaymentId is string &&
+             data.status in ['success', 'pending', 'failed'] &&
+             data.invoiceDate is string &&
+             data.invoiceNumber is string;
+    }
+
+    function isValidConversation(data) {
+      return data.id is string &&
+             data.participants is list &&
+             data.lastMessageText is string &&
+             data.lastMessageTime is string;
+    }
+
+    function isValidMessage(data) {
+      return data.id is string &&
+             data.conversationId is string &&
+             data.senderId is string &&
+             data.senderName is string &&
+             data.content is string &&
+             data.timestamp is string &&
+             data.read is bool;
+    }
+
+    function isValidPaymentTransaction(data) {
+      return data.id is string &&
+             data.bookingId is string &&
+             data.userId == request.auth.uid &&
+             data.userName is string &&
+             data.userEmail is string &&
+             data.amount is number &&
+             data.purpose in ['premium_booking', 'property_deposit', 'affiliate_referral'] &&
+             data.status in ['initiated', 'authorized', 'captured', 'refunded'] &&
+             data.commissionRate is number &&
+             data.platformCut is number &&
+             data.vendorPayout is number &&
+             data.createdAt is string;
+    }
+
+
+    // --- COLLECTIONS RULES ---
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId) && isValidUser(incoming());
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin()) && isValidUser(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone', 'cityPreference']) ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 2. Listings Collection
+    match /listings/{listingId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidListing(incoming());
+      allow update: if isSignedIn() && (isOwner(existing().ownerId) || isAdmin()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'price', 'pricePeriod', 'features', 'images', 'contactNumber', 'email', 'address', 'locality', 'rating', 'reviewsCount', 'status']) ||
+        isAdmin()
+      );
+      allow delete: if isSignedIn() && (isOwner(existing().ownerId) || isAdmin());
+    }
+
+    // 3. Enquiries Collection
+    match /enquiries/{enquiryId} {
+      // Allow read if user is the sender or the listing owner
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidEnquiry(incoming());
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin()) && isValidEnquiry(incoming());
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 4. Reviews Collection
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidReview(incoming());
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin()) && isValidReview(incoming());
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // 5. Favourites Collection
+    match /favourites/{favouriteId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidFavourite(incoming());
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin()) && isValidFavourite(incoming());
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // 6. Bookings Collection
+    match /bookings/{bookingId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidBooking(incoming());
+      allow update: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin()) && isValidBooking(incoming());
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || existing().ownerId == request.auth.uid || isAdmin());
+    }
+
+    // 7. Reports Collection
+    match /reports/{reportId} {
+      allow read: if isSignedIn() && (existing().reporterId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidReport(incoming());
+      allow update: if isAdmin() && isValidReport(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 8. Invoices Collection
+    match /invoices/{invoiceId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidInvoice(incoming());
+      allow update: if isAdmin() && isValidInvoice(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 9. Conversations Collection
+    match /conversations/{conversationId} {
+      allow read: if isSignedIn() && (request.auth.uid in existing().participants || isAdmin());
+      allow create: if isSignedIn() && isValidConversation(incoming());
+      allow update: if isSignedIn() && (request.auth.uid in existing().participants || isAdmin()) && isValidConversation(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 10. Messages Collection
+    match /messages/{messageId} {
+      allow read: if isSignedIn() && (existing().senderId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidMessage(incoming());
+      allow update: if isSignedIn() && (existing().senderId == request.auth.uid || isAdmin()) && isValidMessage(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // 11. CMS Collection
+    match /cms/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // 12. Verification Requests Collection
+    match /verification_requests/{requestId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 13. Marketplace Leads Collection
+    match /marketplace_leads/{leadId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 14. Wallets
+    match /wallets/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // 15. Referrals
+    match /referrals/{referralId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 16. Wallet Transactions
+    match /wallet_transactions/{txId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 17. Community Posts
+    match /community_posts/{postId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // 18. Community Comments
+    match /community_comments/{commentId} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    // 19. Payment Transactions Collection
+    match /payment_transactions/{txId} {
+      allow read: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && isValidPaymentTransaction(incoming());
+      allow update, delete: if false; // Strict financial integrity - block client-side updates/deletions
+    }
+
+    // 20. Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn() && (resource == null || resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 21. Cities Collection
+    match /cities/{cityId} {
+      allow read: if true;
+      allow write: if isSignedIn() || isAdmin();
+    }
+
+    // 22. Presence Collection
+    match /presence/{presenceId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

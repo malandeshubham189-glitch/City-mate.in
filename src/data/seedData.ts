@@ -1,0 +1,172 @@
+import { Listing } from "../types";
+
+export const SEED_LISTINGS: Listing[] = [
+  {
+    id: "lst_bglr_pg1",
+    ownerId: "owner_sharma_ji",
+    ownerName: "Sharma PG Rentals",
+    title: "Stanza Living Style Luxury PG for Men",
+    description: "Premium single & double sharing PG near Koramangala Sony World Signal. Includes multi-cuisine organic meals, professional housekeeping, laundry service, high-speed fiber Wi-Fi, and 24/7 power backup. Biometric security and gym room access included.",
+    category: "pg",
+    city: "Bengaluru",
+    locality: "Koramangala",
+    price: 11500,
+    pricePeriod: "month",
+    features: ["Fully Furnished", "3 Meals Daily", "Gym Access", "Laundry Service", "Biometric Security", "High-speed Wi-Fi"],
+    images: [
+      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+919876543210",
+    email: "contact@stanzasharma.com",
+    address: "Plot 42, 5th Block, Koramangala, behind Sony Center, Bengaluru, Karnataka 560095",
+    rating: 4.8,
+    reviewsCount: 14,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "lst_pune_tiffin1",
+    ownerId: "owner_gharat_kitchen",
+    ownerName: "Gharat Aunty's Kitchen",
+    title: "Homestyle Maharashtrian Tiffin & Mess Service",
+    description: "Get healthy, hygienic, and authentic home-cooked meals delivered straight to your PG, flat, or corporate office. Specializes in hot Bhakri/Chapati, dry sabzi, gravy, dal, rice, and fresh buttermilk. Weekly & monthly subscriptions available.",
+    category: "tiffin",
+    city: "Pune",
+    locality: "Viman Nagar",
+    price: 3200,
+    pricePeriod: "month",
+    features: ["Pure Veg", "Free Delivery", "Lunch & Dinner", "Customizable Spice", "Sunday Special Sweet", "Daily Changing Menu"],
+    images: [
+      "https://images.unsplash.com/photo-1601050690597-df056fb4ce78?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+918888888888",
+    email: "gharatmeals@gmail.com",
+    address: "Lane No 3, Sakore Nagar, near Symbiosis College, Viman Nagar, Pune, Maharashtra 411014",
+    rating: 4.9,
+    reviewsCount: 38,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "lst_delhi_tuition1",
+    ownerId: "owner_apex_academy",
+    ownerName: "Apex Commerce & JEE Academy",
+    title: "NEET, JEE & Commerce Private Coaching",
+    description: "Highly experienced professors from Delhi University & IITs providing personal mentoring, comprehensive notes, mock test series, and personalized doubt sessions. Small batches of 15 students to ensure individual attention.",
+    category: "tuition",
+    city: "Delhi",
+    locality: "Kalu Sarai",
+    price: 15000,
+    pricePeriod: "one-time",
+    features: ["IITian Faculty", "AC Classroom", "Weekly Mock Tests", "Personal Mentor", "Recorded Video Lectures"],
+    images: [
+      "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+919999111222",
+    email: "info@apexkalusarai.in",
+    address: "28/B, First Floor, near Hauz Khas Metro Station, Kalu Sarai, New Delhi, Delhi 110016",
+    rating: 4.7,
+    reviewsCount: 22,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "lst_mumbai_flat1",
+    ownerId: "owner_lodha_agent",
+    ownerName: "Mumbai Haven Realtors",
+    title: "Luxurious 2 BHK Flat for Rent - Near Metro",
+    description: "Fully furnished high-rise 2 BHK apartment with stunning views. Offers modular kitchen, luxury bath fixtures, modern living room furniture, and electronic appliances (AC, Fridge, TV, Washing Machine). Safe society with 24hr water and security.",
+    category: "flats",
+    city: "Mumbai",
+    locality: "Andheri West",
+    price: 55000,
+    pricePeriod: "month",
+    features: ["Modular Kitchen", "Society Security", "Gated Parking", "CCTV Cameras", "Gym & Pool Access", "Near Metro Station"],
+    images: [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+919811223344",
+    email: "rentals@mumbaihaven.com",
+    address: "Flat 1204, Wing B, Lodha Belmondo, Link Road, Andheri West, Mumbai, Maharashtra 400053",
+    rating: 4.6,
+    reviewsCount: 9,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "lst_ggn_job1",
+    ownerId: "owner_tech_india",
+    ownerName: "Zeta Global Tech Labs",
+    title: "Junior Web Developer - React & Node",
+    description: "Excellent entry-level opportunity for a passionate frontend/full-stack developer to join our growing tech team in Cyber City. Work on cutting-edge products, cloud platforms, and collaborative agile environments.",
+    category: "jobs",
+    city: "Gurugram",
+    locality: "Cyber City",
+    price: 45000,
+    pricePeriod: "salary-pm",
+    features: ["Flexible Working Hours", "Hybrid Model", "Free Snacks & Drinks", "Health Insurance", "Annual Performance Bonus"],
+    images: [
+      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+919555444333",
+    email: "hr@zetaglobal.io",
+    address: "Tower C, Building 10, DLF Cyber City Phase II, Gurugram, Haryana 122002",
+    rating: 4.5,
+    reviewsCount: 6,
+    status: "active",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "lst_noida_serv1",
+    ownerId: "owner_noida_movers",
+    ownerName: "Speedy Packers & Movers Noida",
+    title: "Professional Household Shift & Logistics",
+    description: "Top-rated packers and movers providing secure, stress-free packing, loading, transport, and unpacking services across Noida, Greater Noida, and Delhi NCR. Fully insured vehicles and bubble-wrap packing included.",
+    category: "local_services",
+    city: "Noida",
+    locality: "Sector 62",
+    price: 4500,
+    pricePeriod: "one-time",
+    features: ["Trained Professionals", "Luggage Insurance", "Bubble-Wrap Packing", "Doorstep Pickup & Drop", "GPS Tracked Trucks"],
+    images: [
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+    ],
+    contactNumber: "+917001234567",
+    email: "noidapackers@speedy.com",
+    address: "D-114, Sector 62, Noida, Uttar Pradesh 201301",
+    rating: 4.9,
+    reviewsCount: 52,
+    status: "active",
+    createdAt: new Date().toISOString()
+  }
+];
+
+export const INDIAN_CITIES = [
+  "Bengaluru",
+  "Pune",
+  "Mumbai",
+  "Delhi",
+  "Gurugram",
+  "Noida",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Jaipur"
+];
+
+export const CATEGORY_LABELS: Record<string, { label: string; icon: string; description: string }> = {
+  rooms: { label: "Rooms", icon: "Bed", description: "Single/shared rooms in flatmates setup" },
+  pg: { label: "PG (Paying Guest)", icon: "Home", description: "Furnished PGs with food & facilities" },
+  hostels: { label: "Hostels", icon: "Users", description: "Student & co-living sharing hostels" },
+  flats: { label: "Flats/Apartments", icon: "Building", description: "1BHK, 2BHK, 3BHK flats on rent" },
+  mess: { label: "Mess", icon: "Utensils", description: "Dining halls with daily meal options" },
+  tiffin: { label: "Tiffin Services", icon: "ChefHat", description: "Home-cooked meals delivered daily" },
+  jobs: { label: "Jobs", icon: "Briefcase", description: "Local, sales, retail & tech opportunities" },
+  tuition: { label: "Tuition Classes", icon: "BookOpen", description: "Private tutors & exam coaching" },
+  colleges: { label: "Colleges", icon: "GraduationCap", description: "Universities and specialized schools" },
+  schools: { label: "Schools", icon: "School", description: "Primary, secondary & day boarding" },
+  local_services: { label: "Local Services", icon: "Wrench", description: "Packers, plumbers, electricians" }
+};
