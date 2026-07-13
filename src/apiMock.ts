@@ -35,6 +35,18 @@ if (typeof window !== "undefined") {
     if (url.startsWith("/api/") || url.includes(window.location.origin + "/api/")) {
       const parsedUrl = new URL(url, window.location.origin);
       const pathname = parsedUrl.pathname;
+
+      // BYPASS: Do not intercept live AI endpoints, route them to the real Express backend instead!
+      const liveEndpoints = [
+        "/api/chat",
+        "/api/listings/enhance",
+        "/api/relocation/plan",
+        "/api/scam-analyzer"
+      ];
+      if (liveEndpoints.includes(pathname)) {
+        return originalFetch.apply(this, arguments as any);
+      }
+
       const method = init?.method?.toUpperCase() || "GET";
       let bodyData: any = {};
 

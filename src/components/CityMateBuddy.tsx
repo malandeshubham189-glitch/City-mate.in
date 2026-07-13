@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "../types";
-import { MessageSquare, X, Send, Bot, Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { MessageSquare, X, Send, Bot, Sparkles, Loader2, ArrowRight, RefreshCw } from "lucide-react";
 
 interface CityMateBuddyProps {
   currentCity: string;
@@ -45,7 +45,11 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
       timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, newUserMessage]);
+    // Remove any trailing error message before sending new message
+    setMessages((prev) => {
+      const filtered = prev.filter(m => !(m as any).isError);
+      return [...filtered, newUserMessage];
+    });
     setIsLoading(true);
 
     try {
@@ -53,7 +57,7 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          messages: [...messages, newUserMessage].map((m) => ({
+          messages: [...messages.filter(m => !(m as any).isError), newUserMessage].map((m) => ({
             role: m.role,
             content: m.content,
           })),
@@ -83,11 +87,68 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
       setMessages((prev) => [
         ...prev,
         {
-          id: Math.random().toString(),
+          id: "err-" + Math.random().toString(),
           role: "assistant",
           content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
           timestamp: new Date(),
-        },
+          isError: true,
+        } as any,
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRetryLastMessage = async () => {
+    // Find the last user message to retry
+    const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+    if (!lastUserMsg) return;
+
+    // Remove the error message from the messages list
+    setMessages(prev => prev.filter(m => !(m as any).isError));
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: messages.filter(m => !(m as any).isError).map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          userContext: {
+            city: currentCity,
+            category: currentCategory,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      const data = await response.json();
+
+      const newAssistantMessage: ChatMessage = {
+        id: Math.random().toString(),
+        role: "assistant",
+        content: data.content,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) => [...prev, newAssistantMessage]);
+    } catch (error) {
+      console.error("Retry chat error:", error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "err-" + Math.random().toString(),
+          role: "assistant",
+          content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
+          timestamp: new Date(),
+          isError: true,
+        } as any,
       ]);
     } finally {
       setIsLoading(false);
@@ -180,17 +241,29 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
                   </div>
                 )}
                 <div
-                  className={`rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-wrap ${
+                  className={`rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed whitespace-pre-wrap flex flex-col gap-2 ${
                     message.role === "user"
                       ? darkMode
                         ? "bg-gradient-to-r from-brand-indigo to-brand-violet text-white font-medium rounded-tr-none shadow-md shadow-indigo-950/30"
                         : "bg-indigo-600 text-white font-medium rounded-tr-none"
-                      : darkMode
-                        ? "bg-slate-900/80 text-slate-200 border border-slate-800 shadow-sm rounded-tl-none"
-                        : "bg-white text-slate-800 border border-slate-100/80 shadow-sm rounded-tl-none"
+                      : (message as any).isError
+                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20 shadow-sm rounded-tl-none font-medium"
+                        : darkMode
+                          ? "bg-slate-900/80 text-slate-200 border border-slate-800 shadow-sm rounded-tl-none"
+                          : "bg-white text-slate-800 border border-slate-100/80 shadow-sm rounded-tl-none"
                   }`}
                 >
-                  {message.content}
+                  <span>{message.content}</span>
+                  
+                  {(message as any).isError && (
+                    <button
+                      onClick={handleRetryLastMessage}
+                      className="mt-1 flex w-fit items-center gap-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 px-3 py-1.5 text-[10px] font-black border border-rose-500/30 transition-all cursor-pointer active:scale-95"
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      <span>Retry Connection</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -282,3 +355,4 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
     </>
   );
 }
+
