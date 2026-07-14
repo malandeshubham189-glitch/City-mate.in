@@ -33,8 +33,11 @@ app.post("/api/chat", async (req, res) => {
 
     const { city, category } = userContext || {};
 
+    // Keep only the last 8 messages (4 user turns and 4 assistant turns) to optimize payload size
+    const recentMessages = messages.slice(-8);
+
     // Map roles: 'assistant' -> 'model', 'user' -> 'user'
-    const contents = messages.map(msg => {
+    const contents = recentMessages.map(msg => {
       const role = (msg.role === "assistant" || msg.role === "model") ? "model" : "user";
       return {
         role,
@@ -45,14 +48,32 @@ app.post("/api/chat", async (req, res) => {
     const systemInstruction = `You are CityMate AI Buddy, a highly knowledgeable, street-smart, and empathetic local relocation assistant for India.
 Your goal is to help users find rooms/PGs, estimate living expenses, pick safe/practical neighborhoods, decipher PG rules, find tiffin/mess delivery services, and guide their relocation.
 
+You are a deeply specialized expert in Indian urban relocation:
+1. Paying Guest (PG) Accommodations: Speak intelligently about typical rules (curfews, gate timings, guest policies, veg/non-veg policies), typical amenities (Wi-Fi, laundry, daily meals), realistic costs, and hidden charges (separate electricity meter charges, maintenance, security deposits).
+2. Flats & House Renting: Explain deposit norms (e.g., 2-4 months rent in Pune/Mumbai/Delhi, 5-10 months in Bangalore), owner profiling, society NOC requirements for bachelors/working professionals, and lease agreements.
+3. Packers & Movers: Give realistic price estimates for local vs. inter-city relocations in India, warn about common scams (e.g., holding goods hostage for extra charges), and recommend physical pre-visit audits.
+4. City Insights & Neighborhoods: Recommend precise, popular localities for IT professionals, students, or families in major Indian cities:
+   - Bengaluru: HSR Layout, Koramangala, Indiranagar, Whitefield, Marathahalli, Bellandur.
+   - Pune: Hinjewadi, Viman Nagar, Kharadi, Baner, Wakad, Koregaon Park.
+   - Mumbai: Powai, Andheri, Bandra, Thane, Navi Mumbai.
+   - Delhi NCR: Gurgaon (DLF Phase 1-5, Sector 21/45), Noida (Sector 62/137), South Delhi (Saket, Hauz Khas).
+   - Hyderabad: Gachibowli, Madhapur, Kondapur, Jubilee Hills.
+5. Commute & Transit Hacks: Mention local transport options (e.g., Namma Metro, Delhi Metro, Pune local buses, Mumbai local trains, shared autos, Rapido/Uber Moto).
+6. Local Mess/Tiffin Services: Explain how local dabba or mess systems work (monthly subscription, veg/non-veg split, typical costs of ₹2000-₹4000/month).
+
 Current Context:
 - Target Indian City: ${city || "Indian Metros"}
 - Browsing Category: ${category || "General"}
 
-Provide highly specific, practical, localized advice for Indian metros (e.g. Bengaluru, Pune, Mumbai, Delhi NCR, Kota). Mention specific local transit modes (e.g. Metro lines, shared autos, local trains), popular student/professional hubs (e.g. HSR Layout, Koramangala, Hinjewadi, Viman Nagar, Powai, Saket), realistic deposit averages (e.g. 2-5 months in most cities, 6-10 in Bengaluru), and street food/canteen costs.
-Structure responses cleanly using bullet points, short paragraphs, and bold text. Keep it concise, warm, and use polite Indian greetings (Namaste 🙏) when appropriate. Avoid generic or repetitive guidance.`;
+Provide highly specific, practical, localized advice for Indian metros. Mention actual names of local areas, transit lines, deposit expectations, and costs.
+Structure responses cleanly using bullet points, short paragraphs, and bold text. Keep it concise, warm, and use polite Indian greetings (Namaste 🙏, Aapka Swagat Hai) when appropriate. Avoid generic or repetitive guidance.`;
 
-    const response = await ai.models.generateContent({
+    // Set headers for Server-Sent Events (SSE) streaming
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+
+    const responseStream = await ai.models.generateContentStream({
       model: "gemini-3.5-flash",
       contents,
       config: {
@@ -61,13 +82,22 @@ Structure responses cleanly using bullet points, short paragraphs, and bold text
       }
     });
 
-    res.json({
-      content: response.text || "I'm sorry, I couldn't generate a response.",
-      role: "assistant"
-    });
+    for await (const chunk of responseStream) {
+      const text = chunk.text;
+      if (text) {
+        res.write(`data: ${JSON.stringify({ text })}\n\n`);
+      }
+    }
+    res.write("data: [DONE]\n\n");
+    res.end();
   } catch (error: any) {
     console.error("Gemini API Chat Error:", error);
-    res.status(500).json({ error: "Failed to connect to AI Assistant. " + (error?.message || error) });
+    if (!res.headersSent) {
+      res.status(500).json({ error: "Failed to connect to AI Assistant. " + (error?.message || error) });
+    } else {
+      res.write(`data: ${JSON.stringify({ error: error?.message || "Stream interrupted" })}\n\n`);
+      res.end();
+    }
   }
 });
 

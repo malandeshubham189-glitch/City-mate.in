@@ -21,6 +21,8 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingMessageId, setStreamingMessageId] = useState<string | null>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom of chat
@@ -28,7 +30,110 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isOpen]);
+  }, [messages, isOpen, isStreaming]);
+
+  const executeChatQuery = async (newUserMessage: ChatMessage, history: ChatMessage[]) => {
+    setIsLoading(true);
+    setIsStreaming(false);
+    setStreamingMessageId(null);
+
+    const assistantMessageId = "assistant-" + Math.random().toString();
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [...history, newUserMessage].map((m) => ({
+            role: m.role,
+            content: m.content,
+          })),
+          userContext: {
+            city: currentCity,
+            category: currentCategory,
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get response");
+      }
+
+      // Transition from loading state to streaming state
+      setIsLoading(false);
+      setIsStreaming(true);
+      setStreamingMessageId(assistantMessageId);
+
+      // Insert placeholder message for streaming
+      const placeholderMsg: ChatMessage = {
+        id: assistantMessageId,
+        role: "assistant",
+        content: "",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, placeholderMsg]);
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let accumulatedContent = "";
+
+      if (reader) {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
+            if (trimmedLine.startsWith("data: ")) {
+              const dataStr = trimmedLine.slice(6).trim();
+              if (dataStr === "[DONE]") {
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.text) {
+                  accumulatedContent += parsed.text;
+                  setMessages((prev) =>
+                    prev.map((m) =>
+                      m.id === assistantMessageId
+                        ? { ...m, content: accumulatedContent }
+                        : m
+                    )
+                  );
+                }
+              } catch (e) {
+                // Ignore parsing errors for partial or interrupted chunks
+              }
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Chat error:", error);
+      // Remove placeholder message if it remains empty or clean up
+      setMessages((prev) => prev.filter(m => m.id !== assistantMessageId));
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: "err-" + Math.random().toString(),
+          role: "assistant",
+          content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
+          timestamp: new Date(),
+          isError: true,
+        } as any,
+      ]);
+    } finally {
+      setIsLoading(false);
+      setIsStreaming(false);
+      setStreamingMessageId(null);
+    }
+  };
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = textToSend || inputValue.trim();
@@ -45,58 +150,10 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
       timestamp: new Date(),
     };
 
-    // Remove any trailing error message before sending new message
-    setMessages((prev) => {
-      const filtered = prev.filter(m => !(m as any).isError);
-      return [...filtered, newUserMessage];
-    });
-    setIsLoading(true);
+    const history = messages.filter(m => !(m as any).isError);
+    setMessages([...history, newUserMessage]);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: [...messages.filter(m => !(m as any).isError), newUserMessage].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          userContext: {
-            city: currentCity,
-            category: currentCategory,
-          },
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const data = await response.json();
-
-      const newAssistantMessage: ChatMessage = {
-        id: Math.random().toString(),
-        role: "assistant",
-        content: data.content,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, newAssistantMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "err-" + Math.random().toString(),
-          role: "assistant",
-          content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
-          timestamp: new Date(),
-          isError: true,
-        } as any,
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    await executeChatQuery(newUserMessage, history);
   };
 
   const handleRetryLastMessage = async () => {
@@ -104,55 +161,13 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
     const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
     if (!lastUserMsg) return;
 
-    // Remove the error message from the messages list
-    setMessages(prev => prev.filter(m => !(m as any).isError));
-    setIsLoading(true);
+    // Filter out error messages and rebuild context safely
+    const historyWithoutError = messages.filter(m => !(m as any).isError);
+    const history = historyWithoutError.filter(m => m.id !== lastUserMsg.id);
 
-    try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: messages.filter(m => !(m as any).isError).map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
-          userContext: {
-            city: currentCity,
-            category: currentCategory,
-          },
-        }),
-      });
+    setMessages([...history, lastUserMsg]);
 
-      if (!response.ok) {
-        throw new Error("Failed to get response");
-      }
-
-      const data = await response.json();
-
-      const newAssistantMessage: ChatMessage = {
-        id: Math.random().toString(),
-        role: "assistant",
-        content: data.content,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, newAssistantMessage]);
-    } catch (error) {
-      console.error("Retry chat error:", error);
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "err-" + Math.random().toString(),
-          role: "assistant",
-          content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
-          timestamp: new Date(),
-          isError: true,
-        } as any,
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
+    await executeChatQuery(lastUserMsg, history);
   };
 
   const QUICK_QUESTIONS = [
@@ -253,7 +268,12 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
                           : "bg-white text-slate-800 border border-slate-100/80 shadow-sm rounded-tl-none"
                   }`}
                 >
-                  <span>{message.content}</span>
+                  <span>
+                    {message.content}
+                    {isStreaming && message.id === streamingMessageId && (
+                      <span className="inline-block ml-1 w-1.5 h-3 bg-purple-400 dark:bg-purple-300 rounded-sm animate-pulse align-middle" />
+                    )}
+                  </span>
                   
                   {(message as any).isError && (
                     <button
