@@ -108,6 +108,78 @@ const TRENDING_CITIES_INFO = [
     slogan: "The Historic Pink City",
     image: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=600&q=80",
     relocations: "1.5k relocations"
+  },
+  {
+    name: "Nashik",
+    slogan: "Wine Capital & Holy City",
+    image: "https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?auto=format&fit=crop&w=600&q=80",
+    relocations: "1.2k relocations"
+  },
+  {
+    name: "Aurangabad (Chhatrapati Sambhajinagar)",
+    slogan: "Tourism Capital & City of Gates",
+    image: "https://images.unsplash.com/photo-1600100397608-f010e42fa087?auto=format&fit=crop&w=600&q=80",
+    relocations: "1.1k relocations"
+  },
+  {
+    name: "Kolhapur",
+    slogan: "Historic & Culinary Capital",
+    image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80",
+    relocations: "950 relocations"
+  },
+  {
+    name: "Latur",
+    slogan: "Academic Excellence Hub",
+    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80",
+    relocations: "850 relocations"
+  },
+  {
+    name: "Nanded",
+    slogan: "Sacred Pilgrim Center",
+    image: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=600&q=80",
+    relocations: "780 relocations"
+  },
+  {
+    name: "Amravati",
+    slogan: "Cultural & Educational Gateway",
+    image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80",
+    relocations: "720 relocations"
+  },
+  {
+    name: "Solapur",
+    slogan: "Textile Giant of Maharashtra",
+    image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80",
+    relocations: "690 relocations"
+  },
+  {
+    name: "Jalgaon",
+    slogan: "Banana City of India",
+    image: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80",
+    relocations: "650 relocations"
+  },
+  {
+    name: "Akola",
+    slogan: "Cotton Capital & Academic Hub",
+    image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80",
+    relocations: "580 relocations"
+  },
+  {
+    name: "Ahmednagar",
+    slogan: "Historic Fort & Sugar Valley",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80",
+    relocations: "550 relocations"
+  },
+  {
+    name: "Satara",
+    slogan: "Valley of Flowers Gateway",
+    image: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=600&q=80",
+    relocations: "480 relocations"
+  },
+  {
+    name: "Dhule",
+    slogan: "Clean & Green Transit Hub",
+    image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80",
+    relocations: "420 relocations"
   }
 ];
 
@@ -259,7 +331,19 @@ export default function App() {
           { name: "Mumbai", slogan: "The City of Dreams", image: "https://images.unsplash.com/photo-1570168007244-23704139443d?auto=format&fit=crop&w=600&q=80", relocations: "5.5k relocations" },
           { name: "Delhi", slogan: "Heart of the Nation", image: "https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&w=600&q=80", relocations: "4.1k relocations" },
           { name: "Hyderabad", slogan: "The Pearl & IT Hub", image: "https://images.unsplash.com/photo-1605379399642-870262d3d051?auto=format&fit=crop&w=600&q=80", relocations: "3.9k relocations" },
-          { name: "Jaipur", slogan: "The Historic Pink City", image: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=600&q=80", relocations: "1.5k relocations" }
+          { name: "Jaipur", slogan: "The Historic Pink City", image: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=600&q=80", relocations: "1.5k relocations" },
+          { name: "Nashik", slogan: "Wine Capital & Holy City", image: "https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?auto=format&fit=crop&w=600&q=80", relocations: "1.2k relocations" },
+          { name: "Aurangabad (Chhatrapati Sambhajinagar)", slogan: "Tourism Capital & City of Gates", image: "https://images.unsplash.com/photo-1600100397608-f010e42fa087?auto=format&fit=crop&w=600&q=80", relocations: "1.1k relocations" },
+          { name: "Kolhapur", slogan: "Historic & Culinary Capital", image: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=600&q=80", relocations: "950 relocations" },
+          { name: "Latur", slogan: "Academic Excellence Hub", image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80", relocations: "850 relocations" },
+          { name: "Nanded", slogan: "Sacred Pilgrim Center", image: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=600&q=80", relocations: "780 relocations" },
+          { name: "Amravati", slogan: "Cultural & Educational Gateway", image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=600&q=80", relocations: "720 relocations" },
+          { name: "Solapur", slogan: "Textile Giant of Maharashtra", image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80", relocations: "690 relocations" },
+          { name: "Jalgaon", slogan: "Banana City of India", image: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=600&q=80", relocations: "650 relocations" },
+          { name: "Akola", slogan: "Cotton Capital & Academic Hub", image: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80", relocations: "580 relocations" },
+          { name: "Ahmednagar", slogan: "Historic Fort & Sugar Valley", image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=600&q=80", relocations: "550 relocations" },
+          { name: "Satara", slogan: "Valley of Flowers Gateway", image: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=600&q=80", relocations: "480 relocations" },
+          { name: "Dhule", slogan: "Clean & Green Transit Hub", image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80", relocations: "420 relocations" }
         ]);
       }
       if (!foundTestimonials) {

@@ -2,7 +2,29 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore, doc, getDocFromServer, enableMultiTabIndexedDbPersistence } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import firebaseConfig from "@/firebase-applet-config.json";
+import firebaseConfigFromJson from "@/firebase-applet-config.json";
+
+// Merge JSON config with environment variables if present (especially in production/Vercel)
+const metaEnv = (import.meta as any).env || {};
+const firebaseConfig = {
+  apiKey: (metaEnv.VITE_FIREBASE_API_KEY as string) || firebaseConfigFromJson.apiKey,
+  authDomain: (metaEnv.VITE_FIREBASE_AUTH_DOMAIN as string) || firebaseConfigFromJson.authDomain,
+  projectId: (metaEnv.VITE_FIREBASE_PROJECT_ID as string) || firebaseConfigFromJson.projectId,
+  storageBucket: (metaEnv.VITE_FIREBASE_STORAGE_BUCKET as string) || firebaseConfigFromJson.storageBucket,
+  messagingSenderId: (metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID as string) || firebaseConfigFromJson.messagingSenderId,
+  appId: (metaEnv.VITE_FIREBASE_APP_ID as string) || firebaseConfigFromJson.appId,
+  measurementId: (metaEnv.VITE_FIREBASE_MEASUREMENT_ID as string) || firebaseConfigFromJson.measurementId,
+  firestoreDatabaseId: (metaEnv.VITE_FIREBASE_FIRESTORE_DATABASE_ID as string) || firebaseConfigFromJson.firestoreDatabaseId || "(default)",
+};
+
+if (typeof window !== "undefined") {
+  console.log("[Firebase Debug] Initializing with configuration:", {
+    projectId: firebaseConfig.projectId,
+    authDomain: firebaseConfig.authDomain,
+    apiKeyLength: firebaseConfig.apiKey ? firebaseConfig.apiKey.length : 0,
+    hasAppId: !!firebaseConfig.appId,
+  });
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

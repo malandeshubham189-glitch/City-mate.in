@@ -10,15 +10,35 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-// Initialize Gemini Client with standard User-Agent for AI Studio telemetry
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-  httpOptions: {
-    headers: {
-      'User-Agent': 'aistudio-build',
-    }
+// Initialize Gemini Client Lazily with standard User-Agent for AI Studio telemetry & verbose logs
+let aiInstance: GoogleGenAI | null = null;
+function getGeminiClient(): GoogleGenAI {
+  const apiKey = process.env.GEMINI_API_KEY;
+  const isKeyPresent = !!apiKey;
+  const keyLength = apiKey ? apiKey.length : 0;
+  const keyPrefix = apiKey ? apiKey.substring(0, 6) : "none";
+  
+  console.log(`[Gemini Diagnostics] Retrieving API client. Key present: ${isKeyPresent}, Length: ${keyLength}, Prefix: ${keyPrefix}`);
+  
+  if (!apiKey) {
+    const errorMsg = "CRITICAL SERVER ERROR: GEMINI_API_KEY environment variable is not set. Please navigate to Settings > Secrets in your dashboard and ensure GEMINI_API_KEY is configured correctly.";
+    console.error(`[Gemini Diagnostics] ${errorMsg}`);
+    throw new Error(errorMsg);
   }
-});
+
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+    console.log("[Gemini Diagnostics] GoogleGenAI client successfully initialized.");
+  }
+  return aiInstance;
+}
 
 app.use(express.json());
 
@@ -73,8 +93,9 @@ Structure responses cleanly using bullet points, short paragraphs, and bold text
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    const responseStream = await ai.models.generateContentStream({
-      model: "gemini-3.5-flash",
+    const client = getGeminiClient();
+    const responseStream = await client.models.generateContentStream({
+      model: "gemini-2.5-flash",
       contents,
       config: {
         systemInstruction,
@@ -91,11 +112,14 @@ Structure responses cleanly using bullet points, short paragraphs, and bold text
     res.write("data: [DONE]\n\n");
     res.end();
   } catch (error: any) {
-    console.error("Gemini API Chat Error:", error);
+    console.error("[Gemini Chat Endpoint Error] Detailed Error:", error);
     if (!res.headersSent) {
-      res.status(500).json({ error: "Failed to connect to AI Assistant. " + (error?.message || error) });
+      res.status(500).json({ 
+        error: "Failed to connect to AI Assistant. Error details: " + (error?.message || error) + 
+               ". Check if GEMINI_API_KEY is configured in Vercel." 
+      });
     } else {
-      res.write(`data: ${JSON.stringify({ error: error?.message || "Stream interrupted" })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: "[Stream interrupted] " + (error?.message || "Internal error") })}\n\n`);
       res.end();
     }
   }
@@ -124,8 +148,9 @@ Return the response strictly as a JSON object matching this schema:
   "tags": ["tag1", "tag2", ...]
 }`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const client = getGeminiClient();
+    const response = await client.models.generateContent({
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -179,8 +204,9 @@ Return a response strictly as a JSON object matching this schema:
 
 Ensure all tips, areas, budget strategies, and food options are highly specific to ${currentCity} and relevant to the user's budget and diet. Do not use placeholders or generic advice.`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const client = getGeminiClient();
+    const response = await client.models.generateContent({
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -219,8 +245,9 @@ Return a response strictly as a JSON object matching this schema:
   "verdict": "A comprehensive summary explanation of the risks and physical checks needed."
 }`;
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
+    const client = getGeminiClient();
+    const response = await client.models.generateContent({
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

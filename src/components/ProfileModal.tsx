@@ -3,6 +3,7 @@ import { UserProfile } from "../types";
 import { X, User, Phone, MapPin, Check, Loader2 } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db, handleFirestoreError, OperationType } from "../lib/firebase";
+import { INDIAN_CITIES } from "../data/seedData";
 
 interface ProfileModalProps {
   currentUser: UserProfile;
@@ -180,7 +181,7 @@ export default function ProfileModal({
                     : "bg-slate-50 border-slate-200 text-slate-700 focus:ring-indigo-500"
                 }`}
               >
-                {["Bengaluru", "Pune", "Mumbai", "Delhi", "Hyderabad", "Jaipur"].map((c) => (
+                {INDIAN_CITIES.map((c) => (
                   <option key={c} value={c} className="font-semibold">
                     {c}
                   </option>

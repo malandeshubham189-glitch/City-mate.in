@@ -154,7 +154,19 @@ export const INDIAN_CITIES = [
   "Hyderabad",
   "Chennai",
   "Kolkata",
-  "Jaipur"
+  "Jaipur",
+  "Nashik",
+  "Aurangabad (Chhatrapati Sambhajinagar)",
+  "Kolhapur",
+  "Latur",
+  "Nanded",
+  "Amravati",
+  "Solapur",
+  "Jalgaon",
+  "Akola",
+  "Ahmednagar",
+  "Satara",
+  "Dhule"
 ];
 
 export const CATEGORY_LABELS: Record<string, { label: string; icon: string; description: string }> = {

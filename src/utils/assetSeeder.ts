@@ -17,6 +17,66 @@ export const PREMIUM_CITY_ASSETS: Record<string, { coverImage: string; name: str
     coverImage: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=800&q=80",
     name: "Jaipur",
     tagline: "The Historic Pink City & Royal Rajasthani Gateway"
+  },
+  nashik: {
+    coverImage: "https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff?auto=format&fit=crop&w=800&q=80",
+    name: "Nashik",
+    tagline: "Grape Capital of India & Holy Pilgrimage Hub"
+  },
+  aurangabad: {
+    coverImage: "https://images.unsplash.com/photo-1600100397608-f010e42fa087?auto=format&fit=crop&w=800&q=80",
+    name: "Aurangabad (Chhatrapati Sambhajinagar)",
+    tagline: "Tourism Capital & City of Gates"
+  },
+  kolhapur: {
+    coverImage: "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&w=800&q=80",
+    name: "Kolhapur",
+    tagline: "Historic Capital & Culinary Heritage"
+  },
+  latur: {
+    coverImage: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80",
+    name: "Latur",
+    tagline: "Educational Hub of Marathwada & Academic Excellence Center"
+  },
+  nanded: {
+    coverImage: "https://images.unsplash.com/photo-1507608869274-d3177c8bb4c7?auto=format&fit=crop&w=800&q=80",
+    name: "Nanded",
+    tagline: "Sacred Pilgrim Center & Historic Gurudwara Site"
+  },
+  amravati: {
+    coverImage: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80",
+    name: "Amravati",
+    tagline: "Cultural Capital & Major Educational Center"
+  },
+  solapur: {
+    coverImage: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80",
+    name: "Solapur",
+    tagline: "Textile Hub & Gated Fort History"
+  },
+  jalgaon: {
+    coverImage: "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=800&q=80",
+    name: "Jalgaon",
+    tagline: "Banana City of India & Golden Hub"
+  },
+  akola: {
+    coverImage: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80",
+    name: "Akola",
+    tagline: "Cotton Capital & Educational Infrastructure"
+  },
+  ahmednagar: {
+    coverImage: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+    name: "Ahmednagar",
+    tagline: "Historic Ahmednagar Fort & Sugar Industry Hub"
+  },
+  satara: {
+    coverImage: "https://images.unsplash.com/photo-1477584305353-813839efcca0?auto=format&fit=crop&w=800&q=80",
+    name: "Satara",
+    tagline: "Valley of Flowers Gateway & Historic Maratha Seat"
+  },
+  dhule: {
+    coverImage: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80",
+    name: "Dhule",
+    tagline: "Clean, Green & Advanced Transit Corridor"
   }
 };
 
