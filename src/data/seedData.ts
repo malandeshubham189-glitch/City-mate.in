@@ -166,7 +166,24 @@ export const INDIAN_CITIES = [
   "Akola",
   "Ahmednagar",
   "Satara",
-  "Dhule"
+  "Dhule",
+  "Kota",
+  "Indore",
+  "Bhopal",
+  "Patna",
+  "Lucknow",
+  "Chandigarh",
+  "Dehradun",
+  "Ahmedabad",
+  "Vadodara",
+  "Surat",
+  "Coimbatore",
+  "Visakhapatnam",
+  "Mysuru",
+  "Kochi",
+  "Bhubaneswar",
+  "Ranchi",
+  "Guwahati"
 ];
 
 export const CATEGORY_LABELS: Record<string, { label: string; icon: string; description: string }> = {
