@@ -44,7 +44,7 @@ if (typeof window !== "undefined") {
         "/api/scam-analyzer"
       ];
       if (liveEndpoints.includes(pathname)) {
-        return originalFetch.apply(this, arguments as any);
+        return originalFetch(input, init);
       }
 
       const method = init?.method?.toUpperCase() || "GET";
@@ -267,7 +267,7 @@ if (typeof window !== "undefined") {
       return createResponse({ error: "Endpoint mock not implemented" }, 404);
     }
 
-    return originalFetch.apply(this, arguments as any);
+    return originalFetch(input, init);
   };
 
   Object.defineProperty(window, "fetch", {

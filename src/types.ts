@@ -110,8 +110,10 @@ export interface Booking {
   userPhone: string;
   date: string;
   time: string;
-  status: "pending" | "confirmed" | "rejected";
+  status: "pending" | "confirmed" | "rejected" | "cancelled" | "completed" | "scheduled";
   createdAt: string;
+  visitDate?: string;
+  visitTime?: string;
 }
 
 export interface ListingReport {
