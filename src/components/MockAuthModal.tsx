@@ -263,9 +263,13 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       setAuthState("otp-verification");
       setSuccessMsg(`OTP successfully dispatched to ${formattedPhone}!`);
     } catch (err: any) {
-      console.error("OTP send error:", err);
+      console.error("[Firebase Auth Error - Deployed App Debug]:", {
+        code: err.code,
+        message: err.message,
+        fullError: err,
+      });
       if (err.code === "auth/operation-not-allowed") {
-        setErrorMsg("Phone Sign-In is not enabled. Please enable 'Phone' in the Firebase Console (under Build > Authentication > Sign-in method).");
+        setErrorMsg(`Phone Sign-In is not enabled (Error: auth/operation-not-allowed). Please ensure 'Phone' is enabled under the 'Sign-in method' tab in Build > Authentication within your Firebase Console.`);
       } else {
         setErrorMsg(err.message || "Failed to send OTP code. Ensure number formatting is correct.");
       }

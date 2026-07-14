@@ -18,11 +18,15 @@ const firebaseConfig = {
 };
 
 if (typeof window !== "undefined") {
-  console.log("[Firebase Debug] Initializing with configuration:", {
+  console.log("[Firebase Runtime Config] COMPLETE CONFIGURATION IN DEPLOYED APP:", {
+    apiKey: firebaseConfig.apiKey,
     projectId: firebaseConfig.projectId,
     authDomain: firebaseConfig.authDomain,
-    apiKeyLength: firebaseConfig.apiKey ? firebaseConfig.apiKey.length : 0,
-    hasAppId: !!firebaseConfig.appId,
+    appId: firebaseConfig.appId,
+    storageBucket: firebaseConfig.storageBucket,
+    messagingSenderId: firebaseConfig.messagingSenderId,
+    measurementId: firebaseConfig.measurementId,
+    firestoreDatabaseId: firebaseConfig.firestoreDatabaseId,
   });
 }
 
