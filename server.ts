@@ -95,7 +95,7 @@ Structure responses cleanly using bullet points, short paragraphs, and bold text
 
     const client = getGeminiClient();
     const responseStream = await client.models.generateContentStream({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents,
       config: {
         systemInstruction,
@@ -150,7 +150,7 @@ Return the response strictly as a JSON object matching this schema:
 
     const client = getGeminiClient();
     const response = await client.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -206,7 +206,7 @@ Ensure all tips, areas, budget strategies, and food options are highly specific 
 
     const client = getGeminiClient();
     const response = await client.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -247,7 +247,7 @@ Return a response strictly as a JSON object matching this schema:
 
     const client = getGeminiClient();
     const response = await client.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: "gemini-3.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
