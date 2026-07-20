@@ -203,6 +203,9 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       console.error("Google sign in error:", err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Google Sign-In is not enabled. Please enable 'Google' in the Firebase Console (under Build > Authentication > Sign-in method).");
+      } else if (err.code === "auth/unauthorized-domain") {
+        const currentDomain = window.location.hostname;
+        setErrorMsg(`This domain (${currentDomain}) is not authorized for authentication in your Firebase Project. Please add it to the 'Authorized domains' list in the Firebase Console (Authentication > Settings > Authorized domains).`);
       } else {
         setErrorMsg(err.message || "Failed to sign in with Google.");
       }
@@ -238,6 +241,9 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       console.error("Facebook sign in error:", err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Facebook Sign-In is not enabled. Please enable 'Facebook' in the Firebase Console (under Build > Authentication > Sign-in method).");
+      } else if (err.code === "auth/unauthorized-domain") {
+        const currentDomain = window.location.hostname;
+        setErrorMsg(`This domain (${currentDomain}) is not authorized for authentication in your Firebase Project. Please add it to the 'Authorized domains' list in the Firebase Console (Authentication > Settings > Authorized domains).`);
       } else {
         setErrorMsg(err.message || "Failed to sign in with Facebook.");
       }
@@ -279,6 +285,9 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       });
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg(`Phone Sign-In is not enabled (Error: auth/operation-not-allowed). Please ensure 'Phone' is enabled under the 'Sign-in method' tab in Build > Authentication within your Firebase Console.`);
+      } else if (err.code === "auth/unauthorized-domain") {
+        const currentDomain = window.location.hostname;
+        setErrorMsg(`This domain (${currentDomain}) is not authorized for authentication in your Firebase Project. Please add it to the 'Authorized domains' list in the Firebase Console (Authentication > Settings > Authorized domains).`);
       } else {
         setErrorMsg(err.message || "Failed to send OTP code. Ensure number formatting is correct.");
       }
