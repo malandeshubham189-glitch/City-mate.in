@@ -11,7 +11,7 @@ const app = express();
 // Helper to check if we are in Sandbox / Placeholder key mode
 function isSandboxMode(): boolean {
   const apiKey = process.env.GEMINI_API_KEY;
-  return !apiKey || apiKey.startsWith("AQ.Ab8");
+  return !apiKey || apiKey === "undefined" || apiKey === "null" || apiKey.trim() === "" || apiKey.startsWith("AQ.Ab8");
 }
 
 // Initialize Gemini Client Lazily with standard User-Agent for AI Studio telemetry & verbose logs
@@ -49,8 +49,9 @@ app.use(express.json());
 // Helper to stream simulated text to the client
 function streamSimulatedText(text: string, res: any, req: any) {
   res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
+  res.setHeader("X-Accel-Buffering", "no");
   
   const words = text.split(" ");
   for (let i = 0; i < words.length; i++) {
@@ -116,8 +117,9 @@ Structure responses cleanly using bullet points, short paragraphs, and bold text
 
     // Set headers for Server-Sent Events (SSE) streaming
     res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Cache-Control", "no-cache, no-transform");
     res.setHeader("Connection", "keep-alive");
+    res.setHeader("X-Accel-Buffering", "no");
 
     const client = getGeminiClient();
     const responseStream = await client.models.generateContentStream({
