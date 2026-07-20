@@ -159,7 +159,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       onLoginSuccess(profile);
       onClose();
     } catch (err: any) {
-      console.error(err);
+      console.error(`[Firebase Auth Error - Anonymous Login]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Anonymous sign-in is not enabled. Please enable 'Anonymous' in the Firebase Console (under Build > Authentication > Sign-in method).");
       } else {
@@ -200,7 +200,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
         setAuthState("complete-profile");
       }
     } catch (err: any) {
-      console.error("Google sign in error:", err);
+      console.error(`[Firebase Auth Error - Google Login]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Google Sign-In is not enabled. Please enable 'Google' in the Firebase Console (under Build > Authentication > Sign-in method).");
       } else if (err.code === "auth/unauthorized-domain") {
@@ -238,7 +238,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
         setAuthState("complete-profile");
       }
     } catch (err: any) {
-      console.error("Facebook sign in error:", err);
+      console.error(`[Firebase Auth Error - Facebook Login]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Facebook Sign-In is not enabled. Please enable 'Facebook' in the Firebase Console (under Build > Authentication > Sign-in method).");
       } else if (err.code === "auth/unauthorized-domain") {
@@ -278,11 +278,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       setAuthState("otp-verification");
       setSuccessMsg(`OTP successfully dispatched to ${formattedPhone}!`);
     } catch (err: any) {
-      console.error("[Firebase Auth Error - Deployed App Debug]:", {
-        code: err.code,
-        message: err.message,
-        fullError: err,
-      });
+      console.error(`[Firebase Auth Error - Deployed App Debug]: Code: ${err.code || 'unknown'} | Message: ${err.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg(`Phone Sign-In is not enabled (Error: auth/operation-not-allowed). Please ensure 'Phone' is enabled under the 'Sign-in method' tab in Build > Authentication within your Firebase Console.`);
       } else if (err.code === "auth/unauthorized-domain") {
@@ -327,7 +323,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
         setAuthState("complete-profile");
       }
     } catch (err: any) {
-      console.error("OTP Verification Error:", err);
+      console.error(`[Firebase Auth Error - OTP Verification]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       setErrorMsg("Invalid OTP code. Please double check and try again.");
     } finally {
       setIsLoading(false);
@@ -404,7 +400,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       setSuccessMsg(`Account created! A verification link has been sent to ${email}.`);
       setAuthState("email-verification-pending");
     } catch (err: any) {
-      console.error("Email registration error:", err);
+      console.error(`[Firebase Auth Error - Email Registration]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Email/Password registration is not enabled. Please enable 'Email/Password' in the Firebase Console (under Build > Authentication > Sign-in method).");
       } else if (err.code === "auth/email-already-in-use") {
@@ -450,7 +446,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
         onClose();
       }
     } catch (err: any) {
-      console.error("Email login error:", err);
+      console.error(`[Firebase Auth Error - Email Login]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       if (err.code === "auth/operation-not-allowed") {
         setErrorMsg("Email/Password login is not enabled. Please enable 'Email/Password' in the Firebase Console (under Build > Authentication > Sign-in method).");
       } else if (
@@ -480,7 +476,7 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
       await sendPasswordResetEmail(auth, email);
       setSuccessMsg(`A password reset link has been dispatched to ${email}. Check your inbox.`);
     } catch (err: any) {
-      console.error("Password reset error:", err);
+      console.error(`[Firebase Auth Error - Password Reset]: Code: ${err?.code || 'unknown'} | Message: ${err?.message || 'unknown'}`, err);
       setErrorMsg(err.message || "Failed to trigger reset email.");
     } finally {
       setIsLoading(false);
