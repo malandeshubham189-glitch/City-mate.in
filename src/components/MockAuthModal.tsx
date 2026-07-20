@@ -81,35 +81,44 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
 
   // Initialize invisible reCAPTCHA Verifier for Phone OTP
   useEffect(() => {
-    if (auth && !recaptchaVerifier && (authState === "phone-input" || authState === "sign-in")) {
+    let verifierInstance: RecaptchaVerifier | null = null;
+    
+    if (auth) {
       try {
-        const verifier = new RecaptchaVerifier(auth, "recaptcha-verifier-container", {
-          size: "invisible",
-          callback: () => {
-            console.log("reCAPTCHA solved, proceeding...");
-          },
-          "expired-callback": () => {
-            console.warn("reCAPTCHA expired, please try again.");
-            setErrorMsg("reCAPTCHA verification expired. Please request OTP again.");
-          }
-        });
-        setRecaptchaVerifier(verifier);
+        const container = recaptchaContainerRef.current || document.getElementById("recaptcha-verifier-container");
+        if (container) {
+          console.log("[reCAPTCHA Debug] Initializing RecaptchaVerifier on mount with container ref");
+          verifierInstance = new RecaptchaVerifier(auth, container, {
+            size: "invisible",
+            callback: () => {
+              console.log("reCAPTCHA solved, proceeding...");
+            },
+            "expired-callback": () => {
+              console.warn("reCAPTCHA expired, please try again.");
+              setErrorMsg("reCAPTCHA verification expired. Please request OTP again.");
+            }
+          });
+          
+          (window as any).recaptchaVerifier = verifierInstance;
+          setRecaptchaVerifier(verifierInstance);
+        }
       } catch (err) {
         console.error("reCAPTCHA initiation failed:", err);
       }
     }
 
     return () => {
-      if (recaptchaVerifier) {
+      if (verifierInstance) {
         try {
-          recaptchaVerifier.clear();
-          setRecaptchaVerifier(null);
+          console.log("[reCAPTCHA Debug] Clearing RecaptchaVerifier on unmount");
+          verifierInstance.clear();
+          (window as any).recaptchaVerifier = null;
         } catch (e) {
-          // ignore cleanup issues
+          console.warn("reCAPTCHA cleanup issue ignored:", e);
         }
       }
     };
-  }, [authState]);
+  }, [auth]);
 
   // Handle Preset sandbox accounts for testing and verification
   const handlePresetLogin = async (presetRole: UserRole) => {
@@ -471,8 +480,12 @@ export default function MockAuthModal({ onClose, onLoginSuccess }: MockAuthModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-md p-4 overflow-y-auto">
-      {/* Hidden reCAPTCHA container required for Phone Auth */}
-      <div id="recaptcha-verifier-container" className="hidden"></div>
+      {/* Invisible reCAPTCHA container required for Phone Auth */}
+      <div 
+        ref={recaptchaContainerRef}
+        id="recaptcha-verifier-container" 
+        className="absolute left-0 top-0 w-0 h-0 pointer-events-none opacity-0"
+      ></div>
 
       <motion.div 
         initial={{ opacity: 0, scale: 0.95, y: 15 }}

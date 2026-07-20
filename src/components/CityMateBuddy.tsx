@@ -10,6 +10,7 @@ interface CityMateBuddyProps {
 
 export default function CityMateBuddy({ currentCity, currentCategory, darkMode }: CityMateBuddyProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isSandboxActive, setIsSandboxActive] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "init",
@@ -97,6 +98,9 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
               }
               try {
                 const parsed = JSON.parse(dataStr);
+                if (parsed.isSandboxMode) {
+                  setIsSandboxActive(true);
+                }
                 if (parsed.text) {
                   accumulatedContent += parsed.text;
                   setMessages((prev) =>
@@ -241,6 +245,21 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
           <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${
             darkMode ? "bg-slate-950/40" : "bg-slate-50/70"
           }`}>
+            {isSandboxActive && (
+              <div className={`p-3 rounded-xl border text-[10px] leading-normal flex flex-col gap-1 shadow-sm ${
+                darkMode 
+                  ? "bg-purple-950/10 border-purple-900/30 text-purple-300 animate-in fade-in zoom-in-95 duration-200" 
+                  : "bg-indigo-50/50 border-indigo-100/60 text-indigo-700 animate-in fade-in zoom-in-95 duration-200"
+              }`}>
+                <div className="flex items-center gap-1.5 font-bold">
+                  <Sparkles className="h-3 w-3 text-purple-400 dark:text-purple-300 animate-pulse" />
+                  <span>AI Studio Sandbox Mode Active</span>
+                </div>
+                <p className="opacity-85">
+                  Utilizing high-fidelity local AI simulation. Add your standard <b>GEMINI_API_KEY</b> (starting with <code>AIzaSy</code>) in <b>Settings &gt; Secrets</b> to enable live Gemini-3.5-flash responses.
+                </p>
+              </div>
+            )}
             {messages.map((message) => (
               <div
                 key={message.id}
