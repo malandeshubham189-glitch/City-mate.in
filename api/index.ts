@@ -48,28 +48,17 @@ app.use(express.json());
 
 // Helper to stream simulated text to the client
 function streamSimulatedText(text: string, res: any, req: any) {
-  const words = text.split(" ");
-  let i = 0;
-  
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
   
-  const interval = setInterval(() => {
-    if (i < words.length) {
-      const wordText = (i === 0 ? "" : " ") + words[i];
-      res.write(`data: ${JSON.stringify({ text: wordText, isSandboxMode: true })}\n\n`);
-      i++;
-    } else {
-      res.write("data: [DONE]\n\n");
-      res.end();
-      clearInterval(interval);
-    }
-  }, 35);
-  
-  req.on("close", () => {
-    clearInterval(interval);
-  });
+  const words = text.split(" ");
+  for (let i = 0; i < words.length; i++) {
+    const wordText = (i === 0 ? "" : " ") + words[i];
+    res.write(`data: ${JSON.stringify({ text: wordText, isSandboxMode: true })}\n\n`);
+  }
+  res.write("data: [DONE]\n\n");
+  res.end();
 }
 
 // API 1: Live Relocation AI Buddy Assistant Chat
