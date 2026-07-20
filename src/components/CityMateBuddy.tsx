@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChatMessage } from "../types";
 import { MessageSquare, X, Send, Bot, Sparkles, Loader2, ArrowRight, RefreshCw } from "lucide-react";
+import { simulateChat } from "../../fallbackSimulator";
 
 interface CityMateBuddyProps {
   currentCity: string;
@@ -119,19 +120,37 @@ I can help you find rooms, estimate living expenses, pick safe areas, or find ti
         }
       }
     } catch (error) {
-      console.error("Chat error:", error);
-      // Remove placeholder message if it remains empty or clean up
-      setMessages((prev) => prev.filter(m => m.id !== assistantMessageId));
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: "err-" + Math.random().toString(),
-          role: "assistant",
-          content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
-          timestamp: new Date(),
-          isError: true,
-        } as any,
-      ]);
+      console.warn("[Vercel Connection Warn] Server endpoint failed or timed out. Falling back to high-fidelity client-side simulation. Error:", error);
+      
+      try {
+        const simulatedText = simulateChat([...history, newUserMessage], currentCity, currentCategory);
+        setIsSandboxActive(true);
+        
+        // Remove empty placeholder and insert simulated message instead
+        setMessages((prev) => prev.filter(m => m.id !== assistantMessageId));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "assistant-" + Math.random().toString(),
+            role: "assistant",
+            content: simulatedText + "\n\n*(Note: Running in high-fidelity client-side fallback mode to bypass server latency)*",
+            timestamp: new Date(),
+          } as any,
+        ]);
+      } catch (simError) {
+        console.error("Client-side simulation fallback also failed:", simError);
+        setMessages((prev) => prev.filter(m => m.id !== assistantMessageId));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: "err-" + Math.random().toString(),
+            role: "assistant",
+            content: "Oops! I hit a traffic jam on the servers. Let's try that again in a second.",
+            timestamp: new Date(),
+            isError: true,
+          } as any,
+        ]);
+      }
     } finally {
       setIsLoading(false);
       setIsStreaming(false);

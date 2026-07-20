@@ -1,7 +1,7 @@
 import express from "express";
 import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
-import { simulateChat, simulateEnhance, simulatePlan, simulateScam } from "../fallbackSimulator";
+import { simulateChat, simulateEnhance, simulatePlan, simulateScam } from "./fallbackSimulator";
 
 dotenv.config();
 

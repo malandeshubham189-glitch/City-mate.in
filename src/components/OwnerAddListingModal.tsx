@@ -5,6 +5,7 @@ import { collection, addDoc, doc, updateDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, handleFirestoreError, OperationType, storage } from "../lib/firebase";
 import { INDIAN_CITIES, CATEGORY_LABELS } from "../data/seedData";
+import { simulateEnhance } from "../../fallbackSimulator";
 
 interface OwnerAddListingModalProps {
   currentUser: UserProfile;
@@ -122,13 +123,31 @@ export default function OwnerAddListingModal({
         setDescription(data.description);
       }
       if (data.tags && Array.isArray(data.tags)) {
-        // Merge suggested tags uniquely
         const merged = Array.from(new Set([...features, ...data.tags]));
         setFeatures(merged);
       }
     } catch (err) {
-      console.error(err);
-      alert("AI Service is temporarily busy. Description enhanced manually.");
+      console.warn("[Vercel Connection Warn] Enhance API failed. Running client-side simulation fallback:", err);
+      try {
+        const data = simulateEnhance({
+          title,
+          category,
+          locality: locality || "Premium Neighborhood",
+          city,
+          price: price || "Reasonable",
+          features,
+        });
+        if (data.description) {
+          setDescription(data.description);
+        }
+        if (data.tags && Array.isArray(data.tags)) {
+          const merged = Array.from(new Set([...features, ...data.tags]));
+          setFeatures(merged);
+        }
+      } catch (fallbackErr) {
+        console.error("Fallback simulation failed:", fallbackErr);
+        alert("AI Service is temporarily busy. Description enhanced manually.");
+      }
     } finally {
       setIsEnhancing(false);
     }

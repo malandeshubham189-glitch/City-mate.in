@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { simulatePlan, simulateScam } from "../../fallbackSimulator";
 import {
   Sparkles,
   Calculator,
@@ -328,8 +329,20 @@ export default function AIRelocationSuite({ currentCity, darkMode }: AIRelocatio
         throw new Error("Timeline generation error");
       }
     } catch (err) {
-      console.error(err);
-      alert("Encountered connection traffic. Generating high-fidelity visual plan.");
+      console.warn("[Vercel Connection Warn] Planner API failed. Running client-side simulation fallback:", err);
+      try {
+        const data = simulatePlan({
+          currentCity,
+          budget: plannerSetup.budget,
+          diet: plannerSetup.diet,
+          livingSetup: plannerSetup.livingSetup,
+          destination: plannerSetup.destination
+        });
+        setPlannerResult(data);
+      } catch (fallbackErr) {
+        console.error("Fallback planner simulation failed:", fallbackErr);
+        alert("Encountered connection traffic. Generating high-fidelity visual plan.");
+      }
     } finally {
       setIsPlannerLoading(false);
     }
@@ -352,8 +365,14 @@ export default function AIRelocationSuite({ currentCity, darkMode }: AIRelocatio
         throw new Error("Scam analysis failed");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error calculating security telemetry.");
+      console.warn("[Vercel Connection Warn] Scam Analyzer API failed. Running client-side simulation fallback:", err);
+      try {
+        const data = simulateScam(scamText);
+        setScamResult(data);
+      } catch (fallbackErr) {
+        console.error("Fallback scam simulation failed:", fallbackErr);
+        alert("Error calculating security telemetry.");
+      }
     } finally {
       setIsScamLoading(false);
     }
